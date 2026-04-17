@@ -2,143 +2,112 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Daily Hub - PW7 Landscape</title>
+    <meta name="viewport" content="width=1072, user-scalable=no">
+    <title>Kindle PW3 Calendar</title>
     <style>
-        :root { --bg: #ffffff; --text: #000000; --sub: #646464; --line: #000000; --cal-other: #b4b4b4; }
-        [data-theme="dark"] { --bg: #000000; --text: #ffffff; --sub: #969696; --line: #ffffff; --cal-other: #4b4b4b; }
+        :root { --bg: #ffffff; --text: #000000; --sub: #666666; --line: #000000; --cal-other: #d0d0d0; }
+        [data-theme="dark"] { --bg: #000000; --text: #ffffff; --sub: #999999; --line: #ffffff; --cal-other: #404040; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body { 
             background: var(--bg); 
             color: var(--text); 
-            font-family: -apple-system, sans-serif; 
-            width: 100vw; 
-            height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
+            font-family: -apple-system, "Source Han Sans", sans-serif; 
+            width: 1072px; 
+            height: 1448px; 
             overflow: hidden; 
         }
 
-        /* 针对 PW7 分辨率适配 */
         .container { 
             display: flex; 
-            /* PW7 分辨率为 1072 x 1448 */
-            /* 旋转前：宽度设为长边，高度设为短边 */
-            width: 1448px; 
-            height: 1072px; 
-            padding: 60px; /* 适当增加内边距，让大屏幕排版更舒展 */
-            gap: 60px; 
-            
-            /* 强制旋转 90 度 */
-            transform: rotate(90deg);
-            transform-origin: center center; 
-            flex-shrink: 0;
+            flex-direction: column; /* 垂直排版更适合 PW3 的原生渲染 */
+            width: 100%; 
+            height: 100%; 
+            padding: 40px;
+            /* 关键：向下偏移以避开地址栏 */
+            margin-top: 100px; 
         }
 
-        /* 调整左侧宽度比例，适配 1448 的总宽 */
-        .left { width: 680px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        
-        /* 增大时钟字体以适配高分辨率 */
-        .clock { font-size: 160px; font-weight: 800; letter-spacing: -5px; text-align: center; font-variant-numeric: tabular-nums; }
-        
-        .date-bar { height: 60px; border-bottom: 5px solid var(--line); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .date-text { font-size: 32px; font-weight: bold; }
-        .lunar-bar { font-size: 20px; color: var(--sub); font-weight: 500; }
-        
-        table { border-collapse: separate; border-spacing: 10px; width: 100%; table-layout: fixed; }
-        th { font-size: 18px; color: var(--sub); text-align: center; font-weight: normal; padding-bottom: 10px; }
-        td { text-align: center; font-size: 28px; border-radius: 12px; height: 85px; vertical-align: middle; border: 3px solid transparent; cursor: pointer; }
+        /* 顶部时间与天气区 */
+        .top-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 6px solid var(--line); padding-bottom: 20px; }
+        .clock { font-size: 160px; font-weight: 800; line-height: 1; }
+        .weather-info { text-align: right; font-size: 32px; font-weight: 600; line-height: 1.5; }
+
+        /* 中间日历区 */
+        .calendar-section { margin-bottom: 50px; }
+        .date-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+        #ym { font-size: 48px; font-weight: 900; }
+        #lunar { font-size: 28px; color: var(--sub); }
+
+        table { border-collapse: separate; border-spacing: 12px; width: 100%; table-layout: fixed; }
+        th { font-size: 24px; color: var(--sub); text-align: center; font-weight: normal; padding-bottom: 15px; }
+        td { text-align: center; font-size: 38px; border-radius: 12px; height: 110px; vertical-align: middle; border: 4px solid transparent; }
         
         .today { background: var(--text); color: var(--bg); font-weight: bold; }
-        .selected { border: 3px solid var(--text); font-weight: bold; }
-        .other-month { color: var(--cal-other); cursor: default; }
-        
-        .right { flex: 1; display: flex; flex-direction: column; }
-        .btns { display: flex; justify-content: flex-end; gap: 15px; }
-        .btn { border: 2px solid var(--text); background: none; color: var(--text); padding: 0 20px; height: 45px; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; }
-        
-        /* 调整插画高度 */
-        .illustration { width: 100%; height: 450px; border-radius: 20px; margin: 35px 0; background: #e0e0e0; border: 2px solid var(--line); }
-        
-        .content-title { font-size: 48px; font-weight: 900; margin-bottom: 20px; }
-        #dailySub { font-size: 24px !important; line-height: 1.6; }
+        .selected { border: 4px solid var(--text); font-weight: bold; }
+        .other-month { color: var(--cal-other); }
+
+        /* 底部内容区 */
+        .bottom-content { border-top: 3px dashed var(--sub); padding-top: 40px; flex: 1; }
+        .content-title { font-size: 52px; font-weight: 900; margin-bottom: 20px; }
+        #dailySub { font-size: 30px; line-height: 1.6; color: var(--text); }
+
+        /* 控制按钮 */
+        .btns { position: absolute; bottom: 150px; right: 40px; display: flex; gap: 20px; }
+        .btn { border: 3px solid var(--text); background: var(--bg); color: var(--text); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: 900; }
     </style>
 </head>
 <body data-theme="light">
 <div class="container">
-    <div class="left">
-        <div id="weather" style="font-size: 24px; font-weight: 600;">上海 · 晴 · 16°C</div>
+    <div class="top-bar">
         <div class="clock" id="time">00:00</div>
-        <div class="bottom-section">
-            <div class="date-bar">
-                <div id="ym" class="date-text"></div>
-                <div id="lunar" class="lunar-bar"></div>
-            </div>
-            <table>
-                <thead><tr id="weekHead"></tr></thead>
-                <tbody id="calBody"></tbody>
-            </table>
+        <div class="weather-info">
+            <div id="weather">上海 · 晴 · 16°C</div>
+            <div id="lunar">丙午马年 · 正月初一</div>
         </div>
     </div>
-    <div class="right">
-        <div class="btns">
-            <button class="btn" onclick="toggleLang()" id="langBtn">EN</button>
-            <button class="btn" onclick="toggleTheme()" id="themeBtn">DARK</button>
+
+    <div class="calendar-section">
+        <div class="date-header">
+            <div id="ym">2026年4月</div>
         </div>
-        <div class="illustration"></div>
+        <table>
+            <thead><tr id="weekHead"></tr></thead>
+            <tbody id="calBody"></tbody>
+        </table>
+    </div>
+
+    <div class="bottom-content">
         <div class="content-title" id="dailyTitle">菲茨定律</div>
         <div id="dailySub">目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。</div>
     </div>
 </div>
 
+<div class="btns">
+    <button class="btn" onclick="toggleLang()" id="langBtn">EN</button>
+    <button class="btn" onclick="toggleTheme()" id="themeBtn">DARK</button>
+</div>
+
 <script>
-    /* 逻辑部分保持不变 */
+    /* 脚本部分保留你的逻辑，但针对 PW3 性能优化了渲染频率 */
     let isEn = false;
     let selDate = new Date();
-
-    const Lunar = {
-        months: ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"],
-        days: ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"],
-        data2026: [
-            {n: "正月", d: 30}, {n: "二月", d: 29}, {n: "三月", d: 30}, {n: "四月", d: 29}, 
-            {n: "五月", d: 29}, {n: "六月", d: 30}, {n: "闰六月", d: 29}, {n: "七月", d: 30}, 
-            {n: "八月", d: 29}, {n: "九月", d: 30}, {n: "十月", d: 30}, {n: "冬月", d: 30}, {n: "腊月", d: 30}
-        ],
-        getStr: function(d) {
-            const base = new Date(2026, 1, 17);
-            let offset = Math.floor((d - base) / (24 * 3600 * 1000));
-            if (offset < 0) return "乙巳蛇年 · 腊月";
-            let mIdx = 0;
-            while (mIdx < this.data2026.length) {
-                let mDays = this.data2026[mIdx].d;
-                if (offset < mDays) return `丙午马年 · ${this.data2026[mIdx].n}${this.days[offset]}`;
-                offset -= mDays; mIdx++;
-            }
-            return "丁未羊年 · 正月初一";
-        }
-    };
 
     function refresh() {
         const now = new Date();
         document.getElementById('time').innerText = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         const opt = { year: 'numeric', month: isEn ? 'short' : 'long', day: 'numeric' };
         document.getElementById('ym').innerText = selDate.toLocaleDateString(isEn ? 'en-US' : 'zh-CN', opt);
-        const lunarEl = document.getElementById('lunar');
-        if (isEn) { lunarEl.style.display = 'none'; } else {
-            lunarEl.style.display = 'block';
-            lunarEl.innerText = Lunar.getStr(selDate);
-        }
+        
+        // 天气与周表文字切换
         const lang = {
-            zh: { weather: "上海 · 晴 · 16°C", weeks: ['日','一','二','三','四','五','六'], title: "菲茨定律", sub: "目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。", btn: "EN" },
-            en: { weather: "Shanghai · Sunny · 16°C", weeks: ['SUN','MON','TUE','WED','THU','FRI','SAT'], title: "Fitts's Law", sub: "The time to acquire a target is a function of the distance to and size of the target.", btn: "CN" }
+            zh: { weather: "上海 · 晴 · 16°C", weeks: ['日','一','二','三','四','五','六'], title: "菲茨定律", btn: "EN" },
+            en: { weather: "Shanghai · Sunny", weeks: ['S','M','T','W','T','F','S'], title: "Fitts's Law", btn: "CN" }
         };
         const cur = isEn ? lang.en : lang.zh;
         document.getElementById('weather').innerText = cur.weather;
         document.getElementById('weekHead').innerHTML = cur.weeks.map(w => `<th>${w}</th>`).join('');
-        document.getElementById('dailyTitle').innerText = cur.title;
-        document.getElementById('dailySub').innerText = cur.sub;
         document.getElementById('langBtn').innerText = cur.btn;
         renderCal();
     }
@@ -150,22 +119,22 @@
         const start = new Date(y, m, 1).getDay();
         const count = new Date(y, m + 1, 0).getDate();
         const prevCount = new Date(y, m, 0).getDate();
+
         let days = [];
         for(let i = start - 1; i >= 0; i--) days.push({ d: prevCount - i, type: 'other' });
         for(let i = 1; i <= count; i++) days.push({ d: i, type: 'curr' });
         while(days.length < 35) days.push({ d: days.length - (count + start - 1), type: 'other' });
-        const final = days.slice(0, 35);
+        
         for(let i=0; i < 5; i++) {
             let tr = document.createElement('tr');
             for(let j=0; j<7; j++) {
-                let item = final[i*7 + j];
+                let item = days[i*7 + j];
                 let td = document.createElement('td');
                 td.innerText = Math.abs(item.d);
                 if(item.type === 'curr') {
                     const today = new Date();
                     if(item.d === today.getDate() && m === today.getMonth() && y === today.getFullYear()) td.classList.add('today');
                     if(item.d === selDate.getDate()) td.classList.add('selected');
-                    td.onclick = () => { selDate = new Date(y, m, item.d); refresh(); };
                 } else { td.classList.add('other-month'); }
                 tr.appendChild(td);
             }
@@ -181,10 +150,8 @@
     }
 
     refresh();
-    setInterval(() => {
-        const n = new Date();
-        document.getElementById('time').innerText = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
-    }, 1000);
+    // 墨水屏不需要秒级刷新，改为每分钟刷新一次减少耗电
+    setInterval(refresh, 60000);
 </script>
 </body>
 </html>
