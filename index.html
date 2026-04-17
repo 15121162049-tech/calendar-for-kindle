@@ -2,35 +2,74 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Daily Hub - High Contrast Gray</title>
+    <title>Daily Hub - PW7 Landscape</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --sub: #646464; --line: #000000; --cal-other: #b4b4b4; }
         [data-theme="dark"] { --bg: #000000; --text: #ffffff; --sub: #969696; --line: #ffffff; --cal-other: #4b4b4b; }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; width: 1024px; height: 768px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .container { display: flex; width: 100%; height: 100%; padding: 40px; gap: 50px; }
-        .left { width: 480px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .clock { font-size: 110px; font-weight: 800; letter-spacing: -3px; text-align: center; font-variant-numeric: tabular-nums; }
-        .date-bar { height: 50px; border-bottom: 4px solid var(--line); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .date-text { font-size: 24px; font-weight: bold; }
-        .lunar-bar { font-size: 16px; color: var(--sub); font-weight: 500; }
-        table { border-collapse: separate; border-spacing: 6px; width: 100%; table-layout: fixed; }
-        th { font-size: 14px; color: var(--sub); text-align: center; font-weight: normal; padding-bottom: 5px; }
-        td { text-align: center; font-size: 20px; border-radius: 8px; height: 62px; vertical-align: middle; border: 2.5px solid transparent; cursor: pointer; }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: -apple-system, sans-serif; 
+            width: 100vw; 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden; 
+        }
+
+        /* 针对 PW7 分辨率适配 */
+        .container { 
+            display: flex; 
+            /* PW7 分辨率为 1072 x 1448 */
+            /* 旋转前：宽度设为长边，高度设为短边 */
+            width: 1448px; 
+            height: 1072px; 
+            padding: 60px; /* 适当增加内边距，让大屏幕排版更舒展 */
+            gap: 60px; 
+            
+            /* 强制旋转 90 度 */
+            transform: rotate(90deg);
+            transform-origin: center center; 
+            flex-shrink: 0;
+        }
+
+        /* 调整左侧宽度比例，适配 1448 的总宽 */
+        .left { width: 680px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        
+        /* 增大时钟字体以适配高分辨率 */
+        .clock { font-size: 160px; font-weight: 800; letter-spacing: -5px; text-align: center; font-variant-numeric: tabular-nums; }
+        
+        .date-bar { height: 60px; border-bottom: 5px solid var(--line); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .date-text { font-size: 32px; font-weight: bold; }
+        .lunar-bar { font-size: 20px; color: var(--sub); font-weight: 500; }
+        
+        table { border-collapse: separate; border-spacing: 10px; width: 100%; table-layout: fixed; }
+        th { font-size: 18px; color: var(--sub); text-align: center; font-weight: normal; padding-bottom: 10px; }
+        td { text-align: center; font-size: 28px; border-radius: 12px; height: 85px; vertical-align: middle; border: 3px solid transparent; cursor: pointer; }
+        
         .today { background: var(--text); color: var(--bg); font-weight: bold; }
-        .selected { border: 2.5px solid var(--text); font-weight: bold; }
+        .selected { border: 3px solid var(--text); font-weight: bold; }
         .other-month { color: var(--cal-other); cursor: default; }
+        
         .right { flex: 1; display: flex; flex-direction: column; }
-        .btns { display: flex; justify-content: flex-end; gap: 10px; }
-        .btn { border: 2px solid var(--text); background: none; color: var(--text); padding: 0 12px; height: 32px; border-radius: 6px; font-size: 12px; font-weight: 900; cursor: pointer; }
-        .illustration { width: 100%; height: 300px; border-radius: 16px; margin: 25px 0; background: linear-gradient(135deg, #FF9A8B, #FF6A88); }
-        .content-title { font-size: 36px; font-weight: 900; margin-bottom: 10px; }
+        .btns { display: flex; justify-content: flex-end; gap: 15px; }
+        .btn { border: 2px solid var(--text); background: none; color: var(--text); padding: 0 20px; height: 45px; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; }
+        
+        /* 调整插画高度 */
+        .illustration { width: 100%; height: 450px; border-radius: 20px; margin: 35px 0; background: #e0e0e0; border: 2px solid var(--line); }
+        
+        .content-title { font-size: 48px; font-weight: 900; margin-bottom: 20px; }
+        #dailySub { font-size: 24px !important; line-height: 1.6; }
     </style>
 </head>
 <body data-theme="light">
 <div class="container">
     <div class="left">
-        <div id="weather" style="font-weight: 600;">上海 · 晴 · 16°C</div>
+        <div id="weather" style="font-size: 24px; font-weight: 600;">上海 · 晴 · 16°C</div>
         <div class="clock" id="time">00:00</div>
         <div class="bottom-section">
             <div class="date-bar">
@@ -50,11 +89,12 @@
         </div>
         <div class="illustration"></div>
         <div class="content-title" id="dailyTitle">菲茨定律</div>
-        <div id="dailySub" style="font-size: 16px; line-height: 1.5;">目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。</div>
+        <div id="dailySub">目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。</div>
     </div>
 </div>
 
 <script>
+    /* 逻辑部分保持不变 */
     let isEn = false;
     let selDate = new Date();
 
@@ -83,30 +123,23 @@
     function refresh() {
         const now = new Date();
         document.getElementById('time').innerText = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        
         const opt = { year: 'numeric', month: isEn ? 'short' : 'long', day: 'numeric' };
         document.getElementById('ym').innerText = selDate.toLocaleDateString(isEn ? 'en-US' : 'zh-CN', opt);
-        
         const lunarEl = document.getElementById('lunar');
-        if (isEn) {
-            lunarEl.style.display = 'none';
-        } else {
+        if (isEn) { lunarEl.style.display = 'none'; } else {
             lunarEl.style.display = 'block';
             lunarEl.innerText = Lunar.getStr(selDate);
         }
-
         const lang = {
             zh: { weather: "上海 · 晴 · 16°C", weeks: ['日','一','二','三','四','五','六'], title: "菲茨定律", sub: "目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。", btn: "EN" },
             en: { weather: "Shanghai · Sunny · 16°C", weeks: ['SUN','MON','TUE','WED','THU','FRI','SAT'], title: "Fitts's Law", sub: "The time to acquire a target is a function of the distance to and size of the target.", btn: "CN" }
         };
         const cur = isEn ? lang.en : lang.zh;
-        
         document.getElementById('weather').innerText = cur.weather;
         document.getElementById('weekHead').innerHTML = cur.weeks.map(w => `<th>${w}</th>`).join('');
         document.getElementById('dailyTitle').innerText = cur.title;
         document.getElementById('dailySub').innerText = cur.sub;
         document.getElementById('langBtn').innerText = cur.btn;
-
         renderCal();
     }
 
@@ -117,12 +150,10 @@
         const start = new Date(y, m, 1).getDay();
         const count = new Date(y, m + 1, 0).getDate();
         const prevCount = new Date(y, m, 0).getDate();
-
         let days = [];
         for(let i = start - 1; i >= 0; i--) days.push({ d: prevCount - i, type: 'other' });
         for(let i = 1; i <= count; i++) days.push({ d: i, type: 'curr' });
         while(days.length < 35) days.push({ d: days.length - (count + start - 1), type: 'other' });
-        
         const final = days.slice(0, 35);
         for(let i=0; i < 5; i++) {
             let tr = document.createElement('tr');
