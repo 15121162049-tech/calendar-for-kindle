@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1072, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
-    <title>Kindle Dashboard Update</title>
+    <title>Kindle Design Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -17,7 +17,7 @@
             position: relative;
         }
         
-        /* 减小顶部边距，使整体内容向上移动 */
+        /* 整体容器上移 */
         .container { width: 100%; height: 100%; padding: 40px; padding-top: 40px; }
         
         .top-bar { width: 100%; display: block; overflow: hidden; margin-bottom: 40px; }
@@ -26,33 +26,34 @@
         .clock { float: left; width: 33.3333%; font-size: 160px; font-weight: bold; text-align: center; line-height: 1.0; }
         .weather-info { float: left; width: 33.3333%; font-size: 32px; font-weight: bold; text-align: right; padding-top: 116px; }
 
-        /* 文案框：设置为相对定位，以便按钮定位在右上角 */
+        /* 文案框 */
         .quote-box { 
             width: 100%; 
             border: 4px solid #000000; 
-            padding: 30px; 
+            padding: 40px; 
             margin-bottom: 40px; 
             position: relative; 
+            min-height: 320px;
         }
         
-        .content-title { font-size: 42px; font-weight: bold; margin-bottom: 15px; }
-        #dailySub { font-size: 40px; line-height: 1.5; color: #000000; font-weight: normal; max-width: 90%; }
+        .content-title { font-size: 48px; font-weight: bold; margin-bottom: 25px; }
+        /* 正文字号 40px，不加粗 */
+        #dailySub { font-size: 40px; line-height: 1.6; color: #000000; font-weight: normal; max-width: 92%; }
 
-        /* 切换按钮：无边框，定位在文案框内部右上角 */
+        /* 切换按钮：无边框，文案框右上角 */
         .btn-lang { 
             position: absolute; 
-            top: 20px; 
-            right: 20px; 
+            top: 25px; 
+            right: 25px; 
             background: none; 
             border: none; 
-            font-size: 28px; 
+            font-size: 32px; 
             font-weight: bold; 
-            color: #666666; 
+            color: #888888; 
             cursor: pointer; 
-            padding: 10px;
         }
 
-        .calendar-section { width: 100%; margin-top: 60px; }
+        .calendar-section { width: 100%; margin-top: 40px; }
         table { border-collapse: separate; border-spacing: 12px; width: 100%; table-layout: fixed; }
         th { font-size: 24px; color: #666666; text-align: center; padding-bottom: 15px; }
         
@@ -71,17 +72,15 @@
     </div>
 
     <div class="quote-box">
-        <div class="content-title" id="dailyTitle">菲茨定律</div>
-        <div id="dailySub">目标越大、距离越近，越容易操作。</div>
+        <div class="content-title" id="dailyTitle">--</div>
+        <div id="dailySub">--</div>
         <button class="btn-lang" onclick="toggleLang()" id="langBtn">EN</button>
     </div>
 
     <div class="calendar-section">
         <table>
             <thead>
-                <tr>
-                    <th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th>
-                </tr>
+                <tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr>
             </thead>
             <tbody id="calBody"></tbody>
         </table>
@@ -90,6 +89,41 @@
 
 <script>
     var isEn = false;
+    
+    // 30 条设计法则数据
+    var dataList = [
+        { zh: ["美学可用性效应", "好看的界面，用户会主观觉得更好用。"], en: ["Aesthetic-Usability Effect", "Users often perceive aesthetically pleasing design as design that’s more usable."] },
+        { zh: ["选择过载", "选项越多，人越难决策、越容易放弃。"], en: ["Choice Overload", "The more options users have, the harder it is to make a decision and the more likely they are to give up."] },
+        { zh: ["分块 (Chunking)", "信息拆小块再合理分组，更容易理解和记忆。"], en: ["Chunking", "Breaking information into smaller units and grouping them makes it easier to process and remember."] },
+        { zh: ["认知偏差", "人做判断时会有系统性思维偏差，设计要减少误导。"], en: ["Cognitive Bias", "A predictable pattern of mental errors that occurs when making judgments; design should minimize misleading users."] },
+        { zh: ["认知负荷", "界面不要让人费脑，降低理解和操作成本。"], en: ["Cognitive Load", "The total amount of mental effort being used in the working memory; aim to reduce processing costs."] },
+        { zh: ["多尔蒂阈值", "交互反馈＜400ms，效率和流畅度会显著提升。"], en: ["Doherty Threshold", "Productivity soars when a computer and its users interact at a pace that ensures neither has to wait."] },
+        { zh: ["费茨定律", "目标越大、距离越近，点击越快越准。"], en: ["Fitts's Law", "The time to acquire a target is a function of the distance to and size of the target."] },
+        { zh: ["心流 (Flow)", "让用户专注沉浸、无干扰，体验最好。"], en: ["Flow", "A state of focus and immersion; minimizing distractions leads to the best user experience."] },
+        { zh: ["目标梯度效应", "越接近完成目标，用户动力越强。"], en: ["Goal Gradient Effect", "The tendency to approach a goal more quickly as the goal is perceived to be closer."] },
+        { zh: ["希克定律", "选择越多、越复杂，决策时间越长。"], en: ["Hick's Law", "The time it takes to make a decision increases with the number and complexity of choices."] },
+        { zh: ["雅各布定律", "用户习惯其他网站的模式，你的界面要符合通用习惯。"], en: ["Jakob's Law", "Users spend most of their time on other sites, and prefer your site to work the same way."] },
+        { zh: ["共同区域定律", "同一区域内的元素，会被视为一组。"], en: ["Law of Common Region", "Elements tend to be perceived into groups if they are sharing an area with a clearly defined boundary."] },
+        { zh: ["接近定律", "挨得近的元素，会被看成一组。"], en: ["Law of Proximity", "Objects that are near, or proximate to each other, tend to be grouped together."] },
+        { zh: ["简洁定律", "人会自动把复杂图形简化理解。"], en: ["Law of Prägnanz", "People will perceive and interpret complex images as the simplest form possible."] },
+        { zh: ["相似定律", "外观相似的元素，会被归为一类。"], en: ["Law of Similarity", "The human eye tends to perceive similar elements in a design as a complete picture, shape, or group."] },
+        { zh: ["连通性定律", "视觉上相连的元素，关联性更强。"], en: ["Law of Uniform Connectedness", "Elements that are visually connected are perceived as more related than elements with no connection."] },
+        { zh: ["心智模型", "设计要符合用户对系统“怎么工作”的已有认知。"], en: ["Mental Model", "Design should align with what users believe they know about how a system works."] },
+        { zh: ["米勒定律", "人短时记忆大约只能记住 7±2 个项目。"], en: ["Miller's Law", "The average person can only keep 7 (plus or minus 2) items in their working memory."] },
+        { zh: ["奥卡姆剃刀", "能用最简单方案实现，就别搞复杂。"], en: ["Occam's Razor", "Among competing hypotheses, the one with the fewest assumptions should be selected."] },
+        { zh: ["活跃用户悖论", "用户不爱看说明，上来就直接用。"], en: ["Paradox of the Active User", "Users are motivated to get work done and don't want to spend time reading manuals."] },
+        { zh: ["帕累托原则 (二八定律)", "20% 的功能/原因，带来 80% 的效果/问题。"], en: ["Pareto Principle", "For many outcomes, roughly 80% of consequences come from 20% of causes."] },
+        { zh: ["帕金森定律", "任务会自动膨胀，占满你给的所有时间。"], en: ["Parkinson's Law", "Work expands so as to fill the time available for its completion."] },
+        { zh: ["峰终定律", "人对体验的记忆主要由峰值和结尾决定。"], en: ["Peak-End Rule", "People judge an experience largely based on how they felt at its peak and at its end."] },
+        { zh: ["波斯特尔定律", "兼容接收的内容，严谨输出自己的内容。"], en: ["Postel's Law", "Be conservative in what you do, be liberal in what you accept from others."] },
+        { zh: ["选择性注意", "用户只会关注和目标相关的信息，其他会被忽略。"], en: ["Selective Attention", "The process of focusing on a particular object for a period of time while ignoring irrelevant information."] },
+        { zh: ["序列位置效应", "人最容易记住开头和结尾的内容。"], en: ["Serial Position Effect", "Users have a tendency to best remember the first and last items in a series."] },
+        { zh: ["特斯勒定律", "系统总有无法消除的复杂度，要么用户承担，要么开发承担。"], en: ["Tesler's Law", "For any system, there is a certain amount of complexity which cannot be reduced."] },
+        { zh: ["冯·雷斯托夫效应", "与众不同的那个元素，最容易被记住。"], en: ["Von Restorff Effect", "When multiple similar objects are present, the one that differs from the rest is most likely to be remembered."] },
+        { zh: ["工作记忆", "临时处理信息的能力有限，别同时塞太多内容。"], en: ["Working Memory", "The capacity for temporarily storing and managing information required to carry out complex cognitive tasks."] },
+        { zh: ["蔡格尼克效应", "人对未完成的任务，记忆比已完成的更深。"], en: ["Zeigarnik Effect", "People remember uncompleted or interrupted tasks better than completed ones."] }
+    ];
+
     function pad(n) { return n < 10 ? '0' + n : n; }
 
     function getFixedDate() {
@@ -108,20 +142,25 @@
         var mon = now.getMonth();
         var d = now.getDate();
 
-        // 顶部日期始终保持中文
         document.getElementById('ym').innerHTML = y + "年" + (mon + 1) + "月" + d + "日";
         document.getElementById('weather').innerHTML = "上海 · 16°C";
 
+        // 计算每日索引：基于 1970 年以来的总天数
+        var totalDays = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
+        var index = totalDays % dataList.length;
+        var currentItem = dataList[index];
+
         // 仅切换文案内容
-        var quotes = {
-            zh: { b: "EN", t: "菲茨定律", s: "目标越大、距离越近，越容易操作。" },
-            en: { b: "CN", t: "Fitts's Law", s: "The time to acquire a target is a function of distance and size." }
-        };
-        var cur = isEn ? quotes.en : quotes.zh;
-        
-        document.getElementById('langBtn').innerHTML = cur.b;
-        document.getElementById('dailyTitle').innerHTML = cur.t;
-        document.getElementById('dailySub').innerHTML = cur.s;
+        var langBtn = document.getElementById('langBtn');
+        if (isEn) {
+            langBtn.innerHTML = "CN";
+            document.getElementById('dailyTitle').innerHTML = currentItem.en[0];
+            document.getElementById('dailySub').innerHTML = currentItem.en[1];
+        } else {
+            langBtn.innerHTML = "EN";
+            document.getElementById('dailyTitle').innerHTML = currentItem.zh[0];
+            document.getElementById('dailySub').innerHTML = currentItem.zh[1];
+        }
 
         // 渲染日历
         var body = document.getElementById('calBody');
