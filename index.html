@@ -3,23 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1072, user-scalable=no">
-    <title>Kindle PW3 Calendar Fix</title>
+    <title>Kindle PW3 Calendar Dashboard</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --sub: #666666; --line: #000000; --cal-other: #d0d0d0; }
         [data-theme="dark"] { --bg: #000000; --text: #ffffff; --sub: #999999; --line: #ffffff; --cal-other: #404040; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; width: 1072px; height: 1448px; overflow: hidden; position: relative; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: sans-serif; 
+            width: 1072px; 
+            height: 1448px; 
+            overflow: hidden; 
+            position: relative; 
+        }
 
-        .container { display: flex; flex-direction: column; width: 100%; height: 100%; padding: 40px; margin-top: 100px; }
-        .top-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 6px solid var(--line); padding-bottom: 20px; width: 100%; }
+        /* 针对 PW3 避开地址栏 */
+        .container { 
+            display: flex; 
+            flex-direction: column; 
+            width: 100%; 
+            height: 100%; 
+            padding: 40px; 
+            margin-top: 100px; 
+        }
+
+        .top-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            margin-bottom: 40px; 
+            border-bottom: 6px solid var(--line); 
+            padding-bottom: 20px; 
+        }
+
         .clock { font-size: 160px; font-weight: bold; line-height: 1; }
         .weather-info { text-align: right; font-size: 32px; font-weight: bold; line-height: 1.5; }
 
         .calendar-section { margin-bottom: 50px; }
         .date-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
         #ym { font-size: 48px; font-weight: bold; }
-        #lunar { font-size: 28px; color: var(--sub); }
 
         table { border-collapse: separate; border-spacing: 12px; width: 100%; table-layout: fixed; }
         th { font-size: 24px; color: var(--sub); text-align: center; padding-bottom: 15px; }
@@ -34,10 +58,21 @@
         #dailySub { font-size: 30px; line-height: 1.6; }
 
         .btns { position: absolute; bottom: 150px; right: 40px; display: flex; }
-        .btn { border: 4px solid var(--text); background: var(--bg); color: var(--text); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; margin-left: 20px; }
+        .btn { 
+            border: 4px solid var(--text); 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 15px 30px; 
+            border-radius: 10px; 
+            font-size: 24px; 
+            font-weight: bold; 
+            margin-left: 20px; 
+            cursor: pointer;
+        }
     </style>
 </head>
 <body data-theme="light">
+
 <div class="container">
     <div class="top-bar">
         <div class="clock" id="time">00:00</div>
@@ -46,55 +81,65 @@
             <div id="lunar-text">丙午马年</div>
         </div>
     </div>
+
     <div class="calendar-section">
         <div class="date-header">
-            <div id="ym">加载中...</div>
-            <div id="lunar"></div>
+            <div id="ym">正在获取日期...</div>
         </div>
         <table>
             <thead><tr id="weekHead"></tr></thead>
             <tbody id="calBody"></tbody>
         </table>
     </div>
+
     <div class="bottom-content">
         <div class="content-title" id="dailyTitle">菲茨定律</div>
         <div id="dailySub">目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。</div>
     </div>
 </div>
+
 <div class="btns">
     <button class="btn" onclick="toggleLang()" id="langBtn">EN</button>
     <button class="btn" onclick="toggleTheme()" id="themeBtn">DARK</button>
 </div>
 
 <script>
-    // 使用 ES3/ES5 基础语法以兼容 Kindle 浏览器
+    // 强制使用 ES5 语法以兼容 Kindle 浏览器
     var isEn = false;
     var selDate = new Date();
 
     function pad(n) { return n < 10 ? '0' + n : n; }
 
-    function refresh() {
+    function updateTimeOnly() {
         var now = new Date();
-        document.getElementById('time').innerHTML = pad(now.getHours()) + ":" + pad(now.getMinutes());
+        var timeStr = pad(now.getHours()) + ":" + pad(now.getMinutes());
+        var timeEl = document.getElementById('time');
+        if (timeEl) { timeEl.innerHTML = timeStr; }
+    }
+
+    function refresh() {
+        updateTimeOnly();
         
         var year = selDate.getFullYear();
         var month = selDate.getMonth();
         var date = selDate.getDate();
 
-        // 兼容性日期显示
+        // 月份显示逻辑
         var monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
         var monthNamesEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         var displayYM = isEn ? (monthNamesEn[month] + " " + year) : (year + "年" + monthNames[month]);
         document.getElementById('ym').innerHTML = displayYM;
 
         var langData = {
-            zh: { weather: "上海 · 晴 · 16°C", weeks: ['日','一','二','三','四','五','六'], btn: "EN" },
-            en: { weather: "Shanghai · Sunny", weeks: ['S','M','T','W','T','F','S'], btn: "CN" }
+            zh: { weather: "上海 · 晴 · 16°C", weeks: ['日','一','二','三','四','五','六'], btn: "EN", title: "菲茨定律", sub: "目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。" },
+            en: { weather: "Shanghai · Sunny", weeks: ['S','M','T','W','T','F','S'], btn: "CN", title: "Fitts's Law", sub: "The time to acquire a target is a function of the distance to and size of the target." }
         };
         var cur = isEn ? langData.en : langData.zh;
         
         document.getElementById('weather').innerHTML = cur.weather;
         document.getElementById('langBtn').innerHTML = cur.btn;
+        document.getElementById('dailyTitle').innerHTML = cur.title;
+        document.getElementById('dailySub').innerHTML = cur.sub;
 
         // 渲染周表头
         var weekHtml = "";
@@ -115,20 +160,12 @@
         var prevLastDate = new Date(y, m, 0).getDate();
 
         var days = [];
-        // 上个月余天
-        for (var i = firstDay - 1; i >= 0; i--) {
-            days.push({ val: prevLastDate - i, type: 'other' });
-        }
-        // 本月
-        for (var j = 1; j <= lastDate; j++) {
-            days.push({ val: j, type: 'curr' });
-        }
-        // 下个月补位
-        var nextFill = 35 - days.length;
-        if (nextFill < 0) nextFill = 42 - days.length;
-        for (var k = 1; k <= nextFill; k++) {
-            days.push({ val: k, type: 'other' });
-        }
+        for (var i = firstDay - 1; i >= 0; i--) { days.push({ val: prevLastDate - i, type: 'other' }); }
+        for (var j = 1; j <= lastDate; j++) { days.push({ val: j, type: 'curr' }); }
+        
+        var totalCells = days.length > 35 ? 42 : 35;
+        var nextFill = totalCells - days.length;
+        for (var k = 1; k <= nextFill; k++) { days.push({ val: k, type: 'other' }); }
 
         var today = new Date();
         var html = "";
@@ -140,8 +177,11 @@
                 if (item.type === 'other') {
                     cls = "other-month";
                 } else {
-                    if (item.val === today.getDate() && m === today.getMonth() && y === today.getFullYear()) cls = "today";
-                    else if (item.val === d) cls = "selected";
+                    if (item.val === today.getDate() && m === today.getMonth() && y === today.getFullYear()) {
+                        cls = "today";
+                    } else if (item.val === d) {
+                        cls = "selected";
+                    }
                 }
                 html += "<td class='" + cls + "'>" + item.val + "</td>";
             }
@@ -151,6 +191,7 @@
     }
 
     function toggleLang() { isEn = !isEn; refresh(); }
+    
     function toggleTheme() {
         var body = document.body;
         var isDark = body.getAttribute('data-theme') === 'dark';
@@ -158,10 +199,14 @@
         document.getElementById('themeBtn').innerHTML = isDark ? 'DARK' : 'LIGHT';
     }
 
-    // 初始化调用
+    // 立即初始化
     refresh();
-    // 每一分钟更新一次时间
-    setInterval(refresh, 60000);
+
+    // 每 10 秒强制刷新一次时钟，防止 Kindle 浏览器休眠导致的计时停止
+    setInterval(updateTimeOnly, 10000);
+    // 每小时刷新一次完整的日历逻辑
+    setInterval(refresh, 3600000);
 </script>
+
 </body>
 </html>
