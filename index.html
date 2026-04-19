@@ -3,75 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1072, user-scalable=no">
-    <title>Kindle PW3 Calendar Fixed</title>
+    <title>Kindle PW3 Dashboard Optimized</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --sub: #666666; --line: #000000; --cal-other: #d0d0d0; }
-        [data-theme="dark"] { --bg: #000000; --text: #ffffff; --sub: #999999; --line: #ffffff; --cal-other: #404040; }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: var(--text); font-family: sans-serif; width: 1072px; height: 1448px; overflow: hidden; position: relative; }
+
         .container { display: flex; flex-direction: column; width: 100%; height: 100%; padding: 40px; margin-top: 100px; }
-        .top-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 6px solid var(--line); padding-bottom: 20px; }
-        .clock { font-size: 160px; font-weight: bold; line-height: 1; }
-        .weather-info { text-align: right; font-size: 32px; font-weight: bold; line-height: 1.5; }
+        
+        /* 顶部栏重构：左(天气) 中(时间) 右(年月) */
+        .top-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 40px; 
+            border-bottom: 6px solid var(--line); 
+            padding-bottom: 20px; 
+            width: 100%; 
+        }
+        
+        .weather-info { font-size: 32px; font-weight: bold; width: 30%; text-align: left; }
+        .clock { font-size: 160px; font-weight: bold; line-height: 1; width: 40%; text-align: center; }
+        #ym { font-size: 48px; font-weight: bold; width: 30%; text-align: right; }
+
         .calendar-section { margin-bottom: 50px; }
-        #ym { font-size: 48px; font-weight: bold; margin-bottom: 20px; }
+        
         table { border-collapse: separate; border-spacing: 12px; width: 100%; table-layout: fixed; }
         th { font-size: 24px; color: var(--sub); text-align: center; padding-bottom: 15px; }
         td { text-align: center; font-size: 38px; border-radius: 12px; height: 110px; vertical-align: middle; border: 4px solid transparent; }
+        
         .today { background: var(--text); color: var(--bg); font-weight: bold; }
         .other-month { color: var(--cal-other); }
+
         .bottom-content { border-top: 3px dashed var(--sub); padding-top: 40px; flex: 1; }
         .content-title { font-size: 52px; font-weight: bold; margin-bottom: 20px; }
         #dailySub { font-size: 30px; line-height: 1.6; }
-        .btns { position: absolute; bottom: 150px; right: 40px; display: flex; }
-        .btn { border: 4px solid var(--text); background: var(--bg); color: var(--text); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; margin-left: 20px; }
+
+        .btns { position: absolute; bottom: 150px; right: 40px; }
+        .btn { border: 4px solid var(--text); background: var(--bg); color: var(--text); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; }
     </style>
 </head>
-<body data-theme="light">
+<body>
 <div class="container">
     <div class="top-bar">
+        <div class="weather-info" id="weather">上海 · 16°C</div>
+        
         <div class="clock" id="time">00:00</div>
-        <div class="weather-info">
-            <div id="weather">上海 · 16°C</div>
-            <div id="lunar-text">中国标准时间</div>
-        </div>
+        
+        <div id="ym">加载中...</div>
     </div>
-    <div id="ym">加载中...</div>
-    <table>
-        <thead><tr id="weekHead"></tr></thead>
-        <tbody id="calBody"></tbody>
-    </table>
+
+    <div class="calendar-section">
+        <table>
+            <thead><tr id="weekHead"></tr></thead>
+            <tbody id="calBody"></tbody>
+        </table>
+    </div>
+
     <div class="bottom-content">
-        <div class="content-title" id="dailyTitle">加载中</div>
-        <div id="dailySub">正在初始化...</div>
+        <div class="content-title" id="dailyTitle">菲茨定律</div>
+        <div id="dailySub">目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。</div>
     </div>
 </div>
+
 <div class="btns">
     <button class="btn" onclick="toggleLang()" id="langBtn">EN</button>
-    <button class="btn" onclick="toggleTheme()" id="themeBtn">DARK</button>
 </div>
 
 <script>
     var isEn = false;
 
-    // 强制校准函数：解决浏览器慢8小时的问题
+    function pad(n) { return n < 10 ? '0' + n : n; }
+
+    // 针对 Kindle 的时间校准逻辑
     function getFixedDate() {
         var d = new Date();
-        // 获取浏览器认为的时区偏移（分钟）
         var offset = d.getTimezoneOffset(); 
-        // 如果偏移为0（说明浏览器误认在UTC），或者你明确在中国，强制校准为 UTC+8
-        // 这里的逻辑是：不管浏览器怎么想，我们统一计算出当前的北京时间
         var utc = d.getTime() + (offset * 60000); 
         var beijingTime = utc + (3600000 * 8); 
         return new Date(beijingTime);
     }
 
-    function pad(n) { return n < 10 ? '0' + n : n; }
-
     function refresh() {
         var now = getFixedDate();
         document.getElementById('time').innerHTML = pad(now.getHours()) + ":" + pad(now.getMinutes());
-
+        
         var year = now.getFullYear();
         var month = now.getMonth();
         var date = now.getDate();
@@ -81,10 +98,12 @@
         document.getElementById('ym').innerHTML = isEn ? (mNamesEn[month] + " " + year) : (year + "年" + mNames[month]);
 
         var lang = {
-            zh: { weeks: ['日','一','二','三','四','五','六'], btn: "EN", title: "菲茨定律", sub: "目标越大、距离越近，越容易操作。" },
-            en: { weeks: ['S','M','T','W','T','F','S'], btn: "CN", title: "Fitts's Law", sub: "The time to acquire a target is a function of distance." }
+            zh: { weather: "上海 · 16°C", weeks: ['日','一','二','三','四','五','六'], btn: "EN", title: "菲茨定律", sub: "目标越大、距离越近，越容易操作。" },
+            en: { weather: "Shanghai · 16°C", weeks: ['S','M','T','W','T','F','S'], btn: "CN", title: "Fitts's Law", sub: "The time to acquire a target is a function of distance." }
         };
         var cur = isEn ? lang.en : lang.zh;
+        
+        document.getElementById('weather').innerHTML = cur.weather;
         document.getElementById('langBtn').innerHTML = cur.btn;
         document.getElementById('dailyTitle').innerHTML = cur.title;
         document.getElementById('dailySub').innerHTML = cur.sub;
@@ -102,6 +121,7 @@
         var firstDay = new Date(y, m, 1).getDay();
         var lastDate = new Date(y, m + 1, 0).getDate();
         var prevLastDate = new Date(y, m, 0).getDate();
+
         var days = [];
         for (var i = firstDay - 1; i >= 0; i--) days.push({ v: prevLastDate - i, t: 'o' });
         for (var j = 1; j <= lastDate; j++) days.push({ v: j, t: 'c' });
@@ -121,12 +141,6 @@
     }
 
     function toggleLang() { isEn = !isEn; refresh(); }
-    function toggleTheme() {
-        var b = document.body;
-        var isD = b.getAttribute('data-theme') === 'dark';
-        b.setAttribute('data-theme', isD ? 'light' : 'dark');
-        document.getElementById('themeBtn').innerHTML = isD ? 'DARK' : 'LIGHT';
-    }
 
     refresh();
     setInterval(refresh, 30000);
