@@ -3,36 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1072, user-scalable=no">
-    <title>Kindle Dashboard Fix</title>
+    <title>Kindle Dashboard Final</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --sub: #666666; --line: #000000; --cal-other: #d0d0d0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; width: 1072px; height: 1448px; overflow: hidden; position: relative; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; width: 1072px; height: 1448px; overflow: hidden; }
         
-        .container { display: flex; flex-direction: column; width: 100%; height: 100%; padding: 40px; margin-top: 80px; }
+        .container { width: 100%; height: 100%; padding: 40px; padding-top: 100px; }
         
-        /* 顶部栏布局 */
-        .top-bar { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding-bottom: 20px; 
-            width: 100%; 
-        }
-        
-        .weather-info { font-size: 32px; font-weight: bold; width: 30%; text-align: left; }
-        .clock { font-size: 160px; font-weight: bold; line-height: 1; width: 40%; text-align: center; }
-        #ym { font-size: 48px; font-weight: bold; width: 30%; text-align: right; }
+        /* 顶部布局：使用表格或百分比宽度模拟居中，确保老旧内核不崩 */
+        .top-bar { width: 100%; display: block; overflow: hidden; padding-bottom: 20px; }
+        .weather-info { float: left; width: 30%; font-size: 32px; font-weight: bold; text-align: left; padding-top: 60px; }
+        .clock { float: left; width: 40%; font-size: 160px; font-weight: bold; text-align: center; line-height: 1; }
+        #ym { float: left; width: 30%; font-size: 48px; font-weight: bold; text-align: right; padding-top: 60px; }
 
         /* 分割线 */
-        .divider { 
-            width: 100%; 
-            height: 6px; 
-            background-color: var(--line); 
-            margin-bottom: 40px; 
-        }
+        .divider { clear: both; width: 100%; height: 6px; background-color: var(--line); margin-top: 20px; margin-bottom: 40px; }
 
-        .calendar-section { margin-bottom: 50px; }
+        .calendar-section { width: 100%; margin-bottom: 50px; }
         table { border-collapse: separate; border-spacing: 12px; width: 100%; table-layout: fixed; }
         th { font-size: 24px; color: var(--sub); text-align: center; padding-bottom: 15px; }
         td { text-align: center; font-size: 38px; border-radius: 12px; height: 110px; vertical-align: middle; border: 4px solid transparent; }
@@ -40,12 +28,12 @@
         .today { background: var(--text); color: var(--bg); font-weight: bold; }
         .other-month { color: var(--cal-other); }
 
-        .bottom-content { border-top: 3px dashed var(--sub); padding-top: 40px; flex: 1; }
+        .bottom-content { border-top: 3px dashed var(--sub); padding-top: 40px; }
         .content-title { font-size: 52px; font-weight: bold; margin-bottom: 20px; }
         #dailySub { font-size: 30px; line-height: 1.6; }
 
         .btns { position: absolute; bottom: 150px; right: 40px; }
-        .btn { border: 4px solid var(--text); background: var(--bg); color: var(--text); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; }
+        .btn { border: 4px solid var(--text); background: var(--bg); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -67,7 +55,7 @@
 
     <div class="bottom-content">
         <div class="content-title" id="dailyTitle">菲茨定律</div>
-        <div id="dailySub">目标越大、距离越近，越容易操作。边缘区域具有“无限宽度”，是极佳的交互触点。</div>
+        <div id="dailySub">目标越大、距离越近，越容易操作。</div>
     </div>
 </div>
 
@@ -76,11 +64,11 @@
 </div>
 
 <script>
+    // 强制使用 ES3 语法，彻底禁用 let, const
     var isEn = false;
 
     function pad(n) { return n < 10 ? '0' + n : n; }
 
-    // 针对 Kindle 浏览器强制北京时间校准
     function getFixedDate() {
         var d = new Date();
         var offset = d.getTimezoneOffset(); 
@@ -91,26 +79,28 @@
 
     function refresh() {
         var now = getFixedDate();
-        document.getElementById('time').innerHTML = pad(now.getHours()) + ":" + pad(now.getMinutes());
+        var h = now.getHours();
+        var m = now.getMinutes();
+        document.getElementById('time').innerHTML = pad(h) + ":" + pad(m);
         
-        var year = now.getFullYear();
-        var month = now.getMonth();
-        var date = now.getDate();
+        var y = now.getFullYear();
+        var mon = now.getMonth();
+        var d = now.getDate();
 
         var mNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
         var mNamesEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        document.getElementById('ym').innerHTML = isEn ? (mNamesEn[month] + " " + year) : (year + "年" + mNames[month]);
+        document.getElementById('ym').innerHTML = isEn ? (mNamesEn[mon] + " " + y) : (y + "年" + mNames[mon]);
 
         var lang = {
-            zh: { weather: "上海 · 16°C", weeks: ['日','一','二','三','四','五','六'], btn: "EN", title: "菲茨定律", sub: "目标越大、距离越近，越容易操作。" },
-            en: { weather: "Shanghai · 16°C", weeks: ['S','M','T','W','T','F','S'], btn: "CN", title: "Fitts's Law", sub: "The time to acquire a target is a function of distance." }
+            zh: { w: "上海 · 16°C", weeks: ['日','一','二','三','四','五','六'], b: "EN", t: "菲茨定律", s: "目标越大、距离越近，越容易操作。" },
+            en: { w: "Shanghai · 16°C", weeks: ['S','M','T','W','T','F','S'], b: "CN", t: "Fitts's Law", s: "The time to acquire a target is a function of distance." }
         };
         var cur = isEn ? lang.en : lang.zh;
         
-        document.getElementById('weather').innerHTML = cur.weather;
-        document.getElementById('langBtn').innerHTML = cur.btn;
-        document.getElementById('dailyTitle').innerHTML = cur.title;
-        document.getElementById('dailySub').innerHTML = cur.sub;
+        document.getElementById('weather').innerHTML = cur.w;
+        document.getElementById('langBtn').innerHTML = cur.b;
+        document.getElementById('dailyTitle').innerHTML = cur.t;
+        document.getElementById('dailySub').innerHTML = cur.s;
 
         var weekHtml = "";
         for (var i = 0; i < cur.weeks.length; i++) {
@@ -118,19 +108,16 @@
         }
         document.getElementById('weekHead').innerHTML = weekHtml;
 
-        renderCal(year, month, date);
-    }
-
-    function renderCal(y, m, d) {
+        // 渲染日历逻辑
         var body = document.getElementById('calBody');
         body.innerHTML = "";
-        var firstDay = new Date(y, m, 1).getDay();
-        var lastDate = new Date(y, m + 1, 0).getDate();
-        var prevLastDate = new Date(y, m, 0).getDate();
+        var firstDay = new Date(y, mon, 1).getDay();
+        var lastDate = new Date(y, mon + 1, 0).getDate();
+        var prevLast = new Date(y, mon, 0).getDate();
 
         var days = [];
-        for (var i = firstDay - 1; i >= 0; i--) days.push({ v: prevLastDate - i, t: 'o' });
-        for (var j = 1; j <= lastDate; j++) days.push({ v: j, t: 'c' });
+        for (var a = firstDay - 1; a >= 0; a--) days.push({ v: prevLast - a, t: 'o' });
+        for (var b = 1; b <= lastDate; b++) days.push({ v: b, t: 'c' });
         while (days.length < 35) days.push({ v: days.length - (lastDate + firstDay - 1), t: 'o' });
 
         var html = "";
