@@ -2,22 +2,32 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1072, user-scalable=no">
+    <meta name="viewport" content="width=1072, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
     <title>Kindle Dashboard Final</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --sub: #666666; --line: #000000; --cal-other: #d0d0d0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; width: 1072px; height: 1448px; overflow: hidden; }
+        
+        /* 强制 body 占满全屏并隐藏滚动条，减少地址栏出现几率 */
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: sans-serif; 
+            width: 1072px; 
+            height: 1448px; 
+            overflow: hidden; 
+            position: relative;
+        }
         
         .container { width: 100%; height: 100%; padding: 40px; padding-top: 100px; }
         
-        /* 顶部布局：使用表格或百分比宽度模拟居中，确保老旧内核不崩 */
+        /* 顶部布局：使用 float 确保在老旧内核中依然能实现水平居中对齐 */
         .top-bar { width: 100%; display: block; overflow: hidden; padding-bottom: 20px; }
-        .weather-info { float: left; width: 30%; font-size: 32px; font-weight: bold; text-align: left; padding-top: 60px; }
+        .weather-info { float: left; width: 30%; font-size: 32px; font-weight: bold; text-align: left; padding-top: 65px; }
         .clock { float: left; width: 40%; font-size: 160px; font-weight: bold; text-align: center; line-height: 1; }
         #ym { float: left; width: 30%; font-size: 48px; font-weight: bold; text-align: right; padding-top: 60px; }
 
-        /* 分割线 */
+        /* 分割线：增加视觉层次感 */
         .divider { clear: both; width: 100%; height: 6px; background-color: var(--line); margin-top: 20px; margin-bottom: 40px; }
 
         .calendar-section { width: 100%; margin-bottom: 50px; }
@@ -33,7 +43,7 @@
         #dailySub { font-size: 30px; line-height: 1.6; }
 
         .btns { position: absolute; bottom: 150px; right: 40px; }
-        .btn { border: 4px solid var(--text); background: var(--bg); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; }
+        .btn { border: 4px solid var(--text); background: var(--bg); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -64,11 +74,12 @@
 </div>
 
 <script>
-    // 强制使用 ES3 语法，彻底禁用 let, const
+    // 强制使用 ES3 语法，彻底禁用 let, const, 箭头函数
     var isEn = false;
 
     function pad(n) { return n < 10 ? '0' + n : n; }
 
+    // 针对 Kindle 浏览器强制校准北京时间 (UTC+8)
     function getFixedDate() {
         var d = new Date();
         var offset = d.getTimezoneOffset(); 
@@ -97,46 +108,4 @@
         };
         var cur = isEn ? lang.en : lang.zh;
         
-        document.getElementById('weather').innerHTML = cur.w;
-        document.getElementById('langBtn').innerHTML = cur.b;
-        document.getElementById('dailyTitle').innerHTML = cur.t;
-        document.getElementById('dailySub').innerHTML = cur.s;
-
-        var weekHtml = "";
-        for (var i = 0; i < cur.weeks.length; i++) {
-            weekHtml += "<th>" + cur.weeks[i] + "</th>";
-        }
-        document.getElementById('weekHead').innerHTML = weekHtml;
-
-        // 渲染日历逻辑
-        var body = document.getElementById('calBody');
-        body.innerHTML = "";
-        var firstDay = new Date(y, mon, 1).getDay();
-        var lastDate = new Date(y, mon + 1, 0).getDate();
-        var prevLast = new Date(y, mon, 0).getDate();
-
-        var days = [];
-        for (var a = firstDay - 1; a >= 0; a--) days.push({ v: prevLast - a, t: 'o' });
-        for (var b = 1; b <= lastDate; b++) days.push({ v: b, t: 'c' });
-        while (days.length < 35) days.push({ v: days.length - (lastDate + firstDay - 1), t: 'o' });
-
-        var html = "";
-        for (var row = 0; row < 5; row++) {
-            html += "<tr>";
-            for (var col = 0; col < 7; col++) {
-                var item = days[row * 7 + col];
-                var cls = (item.t === 'c' && item.v === d) ? "today" : (item.t === 'o' ? "other-month" : "");
-                html += "<td class='" + cls + "'>" + Math.abs(item.v) + "</td>";
-            }
-            html += "</tr>";
-        }
-        body.innerHTML = html;
-    }
-
-    function toggleLang() { isEn = !isEn; refresh(); }
-
-    refresh();
-    setInterval(refresh, 30000);
-</script>
-</body>
-</html>
+        document.getElementById
