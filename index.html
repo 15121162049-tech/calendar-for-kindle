@@ -109,4 +109,21 @@
         while (days.length < 35) days.push({ v: days.length - (lastDate + firstDay - 1), t: 'o' });
 
         var html = "";
-        for (var r = 0; r < 5
+        for (var r = 0; r < 5; r++) {
+            html += "<tr>";
+            for (var c = 0; c < 7; c++) {
+                var item = days[r * 7 + c];
+                var cls = (item.t === 'c' && item.v === date) ? "today" : (item.t === 'o' ? "other-month" : "");
+                html += "<td class='" + cls + "'>" + Math.abs(item.v) + "</td>";
+            }
+            html += "</tr>";
+        }
+        body.innerHTML = html;
+    }
+
+    function toggleLang() { isEn = !isEn; refresh(); }
+    refresh();
+    setInterval(refresh, 30000);
+</script>
+</body>
+</html>
