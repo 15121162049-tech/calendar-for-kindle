@@ -108,4 +108,55 @@
         };
         var cur = isEn ? lang.en : lang.zh;
         
-        document.getElementById
+        document.getElementById('weather').innerHTML = cur.w;
+        document.getElementById('langBtn').innerHTML = cur.b;
+        document.getElementById('dailyTitle').innerHTML = cur.t;
+        document.getElementById('dailySub').innerHTML = cur.s;
+
+        var weekHtml = "";
+        for (var i = 0; i < cur.weeks.length; i++) {
+            weekHtml += "<th>" + cur.weeks[i] + "</th>";
+        }
+        document.getElementById('weekHead').innerHTML = weekHtml;
+
+        // 渲染日历逻辑
+        var body = document.getElementById('calBody');
+        body.innerHTML = "";
+        var firstDay = new Date(y, mon, 1).getDay();
+        var lastDate = new Date(y, mon + 1, 0).getDate();
+        var prevLast = new Date(y, mon, 0).getDate();
+
+        var days = [];
+        for (var a = firstDay - 1; a >= 0; a--) {
+            days.push({ v: prevLast - a, t: 'o' });
+        }
+        for (var b = 1; b <= lastDate; b++) {
+            days.push({ v: b, t: 'c' });
+        }
+        // 补全格子
+        while (days.length < 35) {
+            days.push({ v: days.length - (lastDate + firstDay - 1), t: 'o' });
+        }
+
+        var html = "";
+        for (var row = 0; row < 5; row++) {
+            html += "<tr>";
+            for (var col = 0; col < 7; col++) {
+                var item = days[row * 7 + col];
+                var cls = (item.t === 'c' && item.v === d) ? "today" : (item.t === 'o' ? "other-month" : "");
+                html += "<td class='" + cls + "'>" + Math.abs(item.v) + "</td>";
+            }
+            html += "</tr>";
+        }
+        body.innerHTML = html;
+    }
+
+    function toggleLang() { isEn = !isEn; refresh(); }
+
+    // 初始化运行
+    refresh();
+    // 每 30 秒自动刷新一次时间，减少墨水屏残影
+    setInterval(refresh, 30000);
+</script>
+</body>
+</html>
