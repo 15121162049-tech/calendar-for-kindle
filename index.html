@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1072, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
-    <title>Kindle Dashboard Compact</title>
+    <title>Kindle Dashboard Layout Fix</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --sub: #666666; --line: #000000; --cal-other: #d0d0d0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,47 +18,48 @@
             position: relative;
         }
         
-        /* 整体容器，减小顶部边距以适应一屏显示 */
-        .container { width: 100%; height: 100%; padding: 30px; padding-top: 60px; }
+        .container { width: 100%; height: 100%; padding: 40px; padding-top: 80px; }
         
-        /* 顶部布局 */
-        .top-bar { width: 100%; display: block; overflow: hidden; }
-        .weather-info { float: left; width: 30%; font-size: 28px; font-weight: bold; text-align: left; padding-top: 55px; }
-        .clock { float: left; width: 40%; font-size: 140px; font-weight: bold; text-align: center; line-height: 1; }
-        #ym { float: left; width: 30%; font-size: 36px; font-weight: bold; text-align: right; padding-top: 55px; }
+        /* 顶栏布局：黄色框互换位置 */
+        .top-bar { width: 100%; display: block; overflow: hidden; padding-bottom: 20px; }
+        #ym { float: left; width: 33.3333%; font-size: 38px; font-weight: bold; text-align: left; padding-top: 60px; }
+        .clock { float: left; width: 33.3333%; font-size: 160px; font-weight: bold; text-align: center; line-height: 1; }
+        .weather-info { float: left; width: 33.3333%; font-size: 32px; font-weight: bold; text-align: right; padding-top: 65px; }
 
-        /* 分割线 */
-        .divider { clear: both; width: 100%; height: 5px; background-color: var(--line); margin-top: 15px; margin-bottom: 25px; }
+        .divider { clear: both; width: 100%; height: 6px; background-color: var(--line); margin-top: 20px; margin-bottom: 40px; }
 
-        /* 将文字移动到上方 */
-        .top-content { margin-bottom: 30px; padding: 15px; border: 3px solid var(--text); border-radius: 10px; }
-        .content-title { font-size: 42px; font-weight: bold; margin-bottom: 10px; }
-        #dailySub { font-size: 26px; line-height: 1.4; color: var(--sub); }
+        /* 文案区域 */
+        .quote-box { width: 100%; border: 4px solid var(--text); padding: 30px; margin-bottom: 40px; }
+        /* 标题保持常规大小 */
+        .content-title { font-size: 42px; font-weight: bold; margin-bottom: 15px; }
+        /* 正文字号调大并加粗，增强墨水屏阅读感 */
+        #dailySub { font-size: 40px; line-height: 1.5; color: var(--text); font-weight: bold; }
 
-        /* 日历区域间距优化 */
-        .calendar-section { width: 100%; }
-        table { border-collapse: separate; border-spacing: 10px; width: 100%; table-layout: fixed; }
-        th { font-size: 22px; color: var(--sub); text-align: center; padding-bottom: 10px; }
-        td { text-align: center; font-size: 34px; border-radius: 10px; height: 95px; vertical-align: middle; border: 3px solid transparent; }
+        /* 红色框区域（日历）保持下移 */
+        .calendar-section { width: 100%; margin-top: 100px; }
+        
+        table { border-collapse: separate; border-spacing: 12px; width: 100%; table-layout: fixed; }
+        th { font-size: 24px; color: var(--sub); text-align: center; padding-bottom: 15px; }
+        td { text-align: center; font-size: 38px; border-radius: 12px; height: 110px; vertical-align: middle; border: 4px solid transparent; }
         
         .today { background: var(--text); color: var(--bg); font-weight: bold; }
         .other-month { color: var(--cal-other); }
 
-        .btns { position: absolute; bottom: 80px; right: 40px; }
-        .btn { border: 3px solid var(--text); background: var(--bg); padding: 12px 25px; border-radius: 8px; font-size: 22px; font-weight: bold; cursor: pointer; }
+        .btns { position: absolute; bottom: 150px; right: 40px; }
+        .btn { border: 4px solid var(--text); background: var(--bg); padding: 15px 30px; border-radius: 10px; font-size: 24px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="top-bar">
-        <div class="weather-info" id="weather">上海 · 16°C</div>
-        <div class="clock" id="time">00:00</div>
         <div id="ym">加载中...</div>
+        <div class="clock" id="time">00:00</div>
+        <div class="weather-info" id="weather">上海 · 16°C</div>
     </div>
 
     <div class="divider"></div>
 
-    <div class="top-content">
+    <div class="quote-box">
         <div class="content-title" id="dailyTitle">菲茨定律</div>
         <div id="dailySub">目标越大、距离越近，越容易操作。</div>
     </div>
@@ -77,7 +78,6 @@
 
 <script>
     var isEn = false;
-
     function pad(n) { return n < 10 ? '0' + n : n; }
 
     function getFixedDate() {
@@ -96,14 +96,11 @@
         var mon = now.getMonth();
         var d = now.getDate();
 
-        // 调整为年月日格式
-        var mNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-        var mNamesEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        document.getElementById('ym').innerHTML = isEn ? (mNamesEn[mon] + " " + d + ", " + y) : (y + "年" + mNames[mon] + d + "日");
+        document.getElementById('ym').innerHTML = isEn ? (y + "." + pad(mon + 1) + "." + pad(d)) : (y + "年" + (mon + 1) + "月" + d + "日");
 
         var lang = {
             zh: { w: "上海 · 16°C", weeks: ['日','一','二','三','四','五','六'], b: "EN", t: "菲茨定律", s: "目标越大、距离越近，越容易操作。" },
-            en: { w: "Shanghai · 16°C", weeks: ['S','M','T','W','T','F','S'], b: "CN", t: "Fitts's Law", s: "The time to acquire a target is a function of distance." }
+            en: { w: "Shanghai · 16°C", weeks: ['S','M','T','W','T','F','S'], b: "CN", t: "Fitts's Law", s: "The time to acquire a target is a function of distance and size." }
         };
         var cur = isEn ? lang.en : lang.zh;
         
@@ -113,9 +110,7 @@
         document.getElementById('dailySub').innerHTML = cur.s;
 
         var weekHtml = "";
-        for (var i = 0; i < cur.weeks.length; i++) {
-            weekHtml += "<th>" + cur.weeks[i] + "</th>";
-        }
+        for (var i = 0; i < cur.weeks.length; i++) weekHtml += "<th>" + cur.weeks[i] + "</th>";
         document.getElementById('weekHead').innerHTML = weekHtml;
 
         var body = document.getElementById('calBody');
@@ -143,7 +138,6 @@
     }
 
     function toggleLang() { isEn = !isEn; refresh(); }
-
     refresh();
     setInterval(refresh, 30000);
 </script>
