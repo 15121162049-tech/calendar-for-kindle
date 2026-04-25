@@ -115,6 +115,36 @@
 </div>
 
 <script>
+var exitBtn = document.getElementById('exitBtn');
+var hideTimeout;
+
+// 1. 点击屏幕显示按钮
+document.addEventListener('touchstart', function() {
+    exitBtn.style.opacity = '1';
+    
+    // 3秒后自动隐藏
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(function() {
+        exitBtn.style.opacity = '0';
+    }, 3000);
+});
+
+// 2. 点击按钮执行退出
+exitBtn.addEventListener('click', function(e) {
+    e.stopPropagation(); // 防止触发上面的显示逻辑
+    
+    // 方法 A: 尝试标准关闭
+    window.close();
+    
+    // 方法 B: 跳转到一个不存在的地址。
+    // 在 Kindle 这种单进程浏览器里，跳转到 about:blank 或非法地址
+    // 配合 run.sh 的进程监控非常有效
+    window.location.href = "about:blank";
+    
+    // 如果是这种嵌入式环境，有时直接抛出一个大错误也能让进程退出
+    throw new Error("EXIT_COMMAND");
+});
+
     // 3. 从 JavaScript 层面禁止触摸滚动行为
     document.addEventListener('touchmove', function(e) {
         e.preventDefault();
