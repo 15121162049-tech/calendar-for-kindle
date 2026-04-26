@@ -69,6 +69,27 @@
         
         .today { background: #000000 !important; color: #ffffff !important; font-weight: bold; }
         .other-month { color: #aaaaaa !important; }
+
+        /* 检查 URL 是否带有低电量信号*/
+function checkBatteryAlert() {
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('msg') === 'low_battery') {
+        /* 创建一个醒目的提醒层*/
+        var alertDiv = document.createElement('div');
+        alertDiv.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); " +
+                          "background:black; color:white; padding:40px; font-size:48px; " +
+                          "font-weight:bold; border:5px solid white; z-index:10000; text-align:center;";
+        alertDiv.innerHTML = "⚠️ 电量偏低，请充电";
+        document.body.appendChild(alertDiv);
+        
+    }
+}
+
+/* 页面加载时运行*/
+window.onload = function() {
+    refresh(); /* 原有的刷新函数*/
+    checkBatteryAlert();
+};
     </style>
 </head>
 <body>
